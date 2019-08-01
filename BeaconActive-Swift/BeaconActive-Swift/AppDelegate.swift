@@ -21,13 +21,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types:([.alert,.sound,.badge]), categories: nil))
             UIApplication.shared.registerForRemoteNotifications()
         }else{
-            UIApplication.shared.registerForRemoteNotifications(matching: [.alert,.sound,.badge]);
+           // UIApplication.shared.registerForRemoteNotifications(matching: [.alert,.sound,.badge]);
         }
 
         //在通过Location唤醒时，launchOptions包含了UIApplicationLaunchOptionsLocationKey，
         //用于只是是从Location重新唤醒的。
         if let option = launchOptions, let _ = option[.location] as? NSNumber {
-            SENLocationManager.sharedInstance.startMonitor(relaunch: true);
+            SENLocationManager.sharedInstance.startMonitor(relaunch: true,updateCbk: nil);
         }
         
         return true

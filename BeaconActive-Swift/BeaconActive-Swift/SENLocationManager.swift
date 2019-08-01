@@ -13,6 +13,7 @@ class SENLocationManager: NSObject, CLLocationManagerDelegate {
 
     static let sharedInstance = SENLocationManager();
 
+    var updateCbk : ((Int, Double, Int) -> Void)?
     let locationManager = CLLocationManager();
     var started = false;
     var monitorRegion : CLBeaconRegion!;
@@ -25,14 +26,15 @@ class SENLocationManager: NSObject, CLLocationManagerDelegate {
         }
         locationManager.delegate = self;
         
-        monitorRegion = CLBeaconRegion(proximityUUID: UUID(uuidString: "46D06053-9FAD-483B-B704-E576735CE1A3")!,
+        monitorRegion = CLBeaconRegion(proximityUUID: UUID(uuidString: "23A01AF0-232A-4518-9C0E-323FB773F5EF")!,
             identifier: "SensoroBeaconActiveTest");
         
 //        monitorRegion.notifyOnEntry = true;
 //        monitorRegion.notifyOnExit = true;
     }
     
-    func startMonitor( relaunch : Bool ){
+    func startMonitor( relaunch : Bool,  updateCbk: ((Int, Double, Int) -> Void)?){
+        self.updateCbk = updateCbk
         if relaunch == false {
             locationManager.startMonitoring(for: monitorRegion);
             locationManager.startRangingBeacons(in: monitorRegion);
@@ -82,9 +84,17 @@ class SENLocationManager: NSObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
-        print(#function);
+        NSLog("Found beacons : %@", beacons);
         for beacon in beacons{
             print("beacon: \(beacon.description)")
+            if let cbk = self.updateCbk {
+                if beacons.count > 1 {
+                    cbk(-100,-100,-100)
+                } else {
+                    
+                    cbk(beacon.proximity.rawValue,(100 * beacon.accuracy).rounded()/100, beacon.rssi)
+                }
+            }
         }
     }
     
@@ -92,7 +102,7 @@ class SENLocationManager: NSObject, CLLocationManagerDelegate {
         NSLog("did Fail With Error : %@", error as NSError);
     }
     
-    func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
-        NSLog("Found beacons : %@", beacons);
-    }
+//    func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
+//        NSLog("Found beacons : %@", beacons);
+//    }
 }
